@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Coordenação e Divulgação de Doações</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --panel-2: #eef5ff;
+      --text: #14213d;
+      --muted: #64748b;
+      --line: #dbe4ef;
+      --primary: #1d4ed8;
+      --primary-2: #2563eb;
+      --primary-dark: #0f2f78;
+      --accent: #f59e0b;
+      --success: #15803d;
+      --danger: #b91c1c;
+      --warning: #b45309;
+      --radius: 18px;
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 30%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    a { color: inherit; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 230px;
+    }
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary-2));
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      box-shadow: 0 10px 22px rgba(29, 78, 216, 0.28);
+    }
+
+    .brand strong { display: block; font-size: 15px; }
+    .brand span { display: block; font-size: 12px; color: var(--muted); }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .nav a,
+    .button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 40px;
+    }
+
+    .nav a:hover,
+    .button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.09);
+    }
+
+    .button.primary {
+      color: white;
+      border-color: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+
+    .button.success {
+      color: white;
+      border-color: var(--success);
+      background: var(--success);
+    }
+
+    .button.warning {
+      color: white;
+      border-color: var(--warning);
+      background: var(--warning);
+    }
+
+    .button.danger {
+      color: white;
+      border-color: var(--danger);
+      background: var(--danger);
+    }
+
+    .button.ghost { background: transparent; }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 20px 70px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 24px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, #0f2f78, #1d4ed8 58%, #2f70ff);
+      border-radius: 30px;
+      padding: 34px;
+      color: white;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -90px;
+      top: -90px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .16);
+    }
+
+    .hero-card h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 5vw, 50px);
+      line-height: 1.04;
+      letter-spacing: -1.6px;
+      max-width: 720px;
+    }
+
+    .hero-card p {
+      margin: 0 0 20px;
+      color: rgba(255, 255, 255, .88);
+      max-width: 760px;
+      font-size: 16px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .hero-actions .button { border-color: rgba(255,255,255,.24); }
+
+    .hero-metrics {
+      display: grid;
+      gap: 14px;
+    }
+
+    .metric-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .metric-value {
+      font-size: 34px;
+      font-weight: 900;
+      margin-top: 5px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, .72fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+
+    .panel-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #fbfdff);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 19px;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .panel-body { padding: 20px; }
+
+    .section-title {
+      margin: 20px 0 12px;
+      font-size: 16px;
+      color: var(--primary-dark);
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--line);
+    }
+
+    .section-title:first-child { margin-top: 0; }
+
+    .fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 800;
+      color: #27364f;
+      margin-bottom: 7px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 12px 13px;
+      color: var(--text);
+      font: inherit;
+      outline: none;
+      min-height: 44px;
+    }
+
+    textarea { resize: vertical; min-height: 94px; }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--primary-2);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, .12);
+    }
+
+
+    .contact-section-intro {
+      margin-top: 4px;
+    }
+
+    .contact-list p {
+      margin: 4px 0;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      align-items: center;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    th {
+      background: var(--panel-2);
+      color: #1d3557;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    td input,
+    td select { padding: 9px; min-height: 38px; border-radius: 10px; }
+
+    .mini-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .mini-btn:hover { background: #f1f5f9; }
+
+    .campaign-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .campaign-card {
+      position: relative;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px;
+      cursor: pointer;
+      transition: .16s ease;
+      overflow: hidden;
+    }
+
+    .campaign-card.concluded {
+      padding-right: 82px;
+    }
+
+    .campaign-card:hover,
+    .campaign-card.active {
+      border-color: var(--primary-2);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, .12);
+    }
+
+    .campaign-card strong { display: block; margin-bottom: 3px; }
+    .campaign-card small { color: var(--muted); }
+
+    .campaign-check {
+      position: absolute;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-8deg);
+      color: #22d400;
+      font-size: 64px;
+      line-height: 1;
+      font-weight: 900;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, .04);
+      pointer-events: none;
+    }
+
+    .campaign-card.concluded .progress span {
+      background: linear-gradient(90deg, #16a34a, #22c55e);
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--success), #22c55e);
+      transition: width .25s ease;
+    }
+
+    .report-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      padding: 20px;
+    }
+
+    .report-card h2,
+    .report-card h3 { color: var(--primary-dark); }
+
+    .report-card h2 { margin-top: 0; }
+
+    .report-kpis {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .report-kpi {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #f8fbff;
+    }
+
+    .report-kpi strong { display: block; font-size: 20px; }
+    .report-kpi span { color: var(--muted); font-size: 12px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      background: #e0edff;
+      color: #17428f;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      margin: 2px 4px 2px 0;
+    }
+
+    .empty-state {
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      background: #fbfdff;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%) translateY(20px);
+      opacity: 0;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      transition: .2s ease;
+      z-index: 100;
+      font-weight: 800;
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .print-only { display: none; }
+
+    @media (max-width: 980px) {
+      .hero,
+      .grid { grid-template-columns: 1fr; }
+      .topbar-inner { align-items: flex-start; flex-direction: column; }
+      .nav { justify-content: flex-start; }
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 18px 12px 60px; }
+      .hero-card { padding: 24px; border-radius: 24px; }
+      .fields,
+      .report-kpis { grid-template-columns: 1fr; }
+      .panel-header { align-items: flex-start; flex-direction: column; }
+      .button { width: 100%; }
+      .nav { width: 100%; }
+      .nav a { flex: 1; }
+    }
+
+    .site-footer {
+      max-width: 1180px;
+      margin: 24px auto 32px;
+      padding: 18px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .site-footer strong {
+      color: var(--primary-dark);
+    }
+
+    @media print {
+      @page { size: A4; margin: 12mm; }
+      body { background: white; }
+      .topbar,
+      .hero,
+      .grid,
+      .no-print,
+      .toast { display: none !important; }
+      .print-only { display: block !important; }
+      .container { padding: 0; max-width: none; }
+      #printArea {
+        display: block !important;
+        color: #111827;
+        font-size: 12pt;
+      }
+      .report-card {
+        border: none;
+        padding: 0;
+      }
+      .report-card table {
+        min-width: 0;
+        width: 100%;
+      }
+      .report-card th,
+      .report-card td {
+        border: 1px solid #999;
+        padding: 6px;
+      }
+      .report-kpis { grid-template-columns: repeat(3, 1fr); }
+      .badge { border: 1px solid #777; background: white; color: black; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar no-print">
+    <div class="topbar-inner">
+      <div class="brand" aria-label="Sistema de doações">
+        <div class="logo" aria-hidden="true">❤</div>
+        <div>
+          <strong>DoaFácil</strong>
+          <span>Campanhas simples, relatório e divulgação</span>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Navegação principal">
+        <a href="#formulario">Campanha</a>
+        <a href="#itens">Itens</a>
+        <a href="#relatorio">Relatório</a>
+        <button class="button primary" type="button" id="btnPrintTop">Imprimir relatório</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero no-print">
+      <div class="hero-card">
+        <h1>Sistema de coordenação e divulgação de doações</h1>
+        <p>
+          Cadastre uma campanha, informe os itens necessários, acompanhe o andamento da arrecadação e gere um relatório pronto para impressão ou card para divulgação na comunidade.
+        </p>
+        <div class="hero-actions">
+          <a class="button" href="#formulario">Preencher campanha</a>
+          <button class="button success" type="button" id="btnExample">Carregar exemplo</button>
+          <button class="button warning" type="button" id="btnNew">Nova campanha</button>
+        </div>
+      </div>
+      <div class="hero-metrics" aria-label="Resumo geral da campanha atual">
+        <div class="metric-card">
+          <div class="metric-label">Progresso geral</div>
+          <div class="metric-value" id="metricProgress">0%</div>
+          <div class="progress" aria-hidden="true"><span id="metricProgressBar"></span></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Itens cadastrados</div>
+          <div class="metric-value" id="metricItems">0</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Status</div>
+          <div class="metric-value" id="metricStatus">Rascunho</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid no-print">
+      <div>
+        <form id="campaignForm" class="panel" autocomplete="off">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title" id="formulario">Dados da campanha</h2>
+              <p class="panel-subtitle">Não há login. Os dados ficam salvos apenas neste navegador.</p>
+            </div>
+            <div class="toolbar">
+              <button class="button primary" type="button" id="btnSave">Salvar</button>
+              <button class="button danger" type="button" id="btnDeleteCampaign">Excluir campanha</button>
+              <button class="button" type="button" id="btnClear">Limpar</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <h3 class="section-title">Identificação</h3>
+            <div class="fields">
+              <div class="field full">
+                <label for="titulo">Título da campanha</label>
+                <input id="titulo" name="titulo" placeholder="Ex.: Campanha Solidária de Alimentos e Higiene" required />
+              </div>
+              <div>
+                <label for="instituicao">Instituição / organização</label>
+                <input id="instituicao" name="instituicao" placeholder="Ex.: Igreja, ONG, associação de bairro" />
+              </div>
+              <div>
+                <label for="responsavel">Responsável</label>
+                <input id="responsavel" name="responsavel" placeholder="Nome do responsável pela campanha" />
+              </div>
+              <div class="field full contact-section-intro">
+                <h3 class="section-title" style="margin-top:4px">Canais de contato para doações</h3>
+                <p class="hint">Informe os canais que serão divulgados no relatório. Preencha apenas os que desejar usar.</p>
+              </div>
+              <div>
+                <label for="email">E-mail</label>
+                <input id="email" name="email" type="email" placeholder="Ex.: contato@instituicao.org" />
+              </div>
+              <div>
+                <label for="whatsapp">WhatsApp</label>
+                <input id="whatsapp" name="whatsapp" type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" pattern="\(\d{2}\)\s\d{4,5}-\d{4}" placeholder="Ex.: (00) 00000-0000" />
+              </div>
+              <div>
+                <label for="telefone">Telefone</label>
+                <input id="telefone" name="telefone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" pattern="\(\d{2}\)\s\d{4,5}-\d{4}" placeholder="Ex.: (00) 0000-0000" />
+              </div>
+              <div>
+                <label for="facebook">Facebook</label>
+                <input id="facebook" name="facebook" placeholder="Ex.: facebook.com/sua-campanha" />
+              </div>
+              <div>
+                <label for="instagram">Instagram</label>
+                <input id="instagram" name="instagram" placeholder="Ex.: @sua_campanha" />
+              </div>
+              <div>
+                <label for="redeX">X</label>
+                <input id="redeX" name="redeX" placeholder="Ex.: @sua_campanha" />
+              </div>
+              <div>
+                <label for="cidade">Cidade / Estado</label>
+                <input id="cidade" name="cidade" placeholder="Ex.: São Paulo - SP" />
+              </div>
+            </div>
+
+            <h3 class="section-title">Objetivo da campanha</h3>
+            <div class="fields">
+              <div class="field full">
+                <label for="objetivo">Objetivo da campanha</label>
+                <textarea id="objetivo" name="objetivo" placeholder="Descreva o objetivo: arrecadar alimentos, roupas, materiais de higiene, brinquedos, etc."></textarea>
+              </div>
+              <div>
+                <label for="dataInicio">Data inicial</label>
+                <input id="dataInicio" name="dataInicio" type="date" />
+              </div>
+              <div>
+                <label for="dataFim">Data final</label>
+                <input id="dataFim" name="dataFim" type="date" />
+              </div>
+              <div class="field full">
+                <label for="localEntrega">Local de entrega / ponto de coleta</label>
+                <textarea id="localEntrega" name="localEntrega" placeholder="Informe endereço, horários e orientações para entrega."></textarea>
+              </div>
+            </div>
+
+            <h3 class="section-title" id="itens">Itens necessários</h3>
+            <div class="toolbar" style="margin-bottom:12px">
+              <button class="button success" type="button" id="btnAddItem">Adicionar item</button>
+              <button class="button" type="button" id="btnSortPriority">Ordenar por prioridade</button>
+            </div>
+            <div class="table-wrap">
+              <table aria-label="Itens de doação">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Categoria</th>
+                    <th>Meta</th>
+                    <th>Arrecadado</th>
+                    <th>Unidade</th>
+                    <th>Prioridade</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="itemsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </form>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Importar e exportar</h2>
+              <p class="panel-subtitle">Use para levar as campanhas para outro computador.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="toolbar">
+              <button class="button" type="button" id="btnExport">Exportar Campanha</button>
+              <label class="button ghost" for="importFile" style="margin:0">Importar Campanha</label>
+              <input id="importFile" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" hidden />
+            </div>
+            <p class="hint">O arquivo exportado será uma planilha Excel (.xlsx) apenas da campanha aberta no momento, com dados, itens e resumo.</p>
+          </div>
+        </section>
+      </div>
+
+      <aside>
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Campanhas salvas</h2>
+              <p class="panel-subtitle">Clique em uma campanha para carregar.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="campaignList" class="campaign-list"></div>
+          </div>
+        </section>
+
+        <section class="panel" id="relatorio">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Relatório para divulgação</h2>
+              <p class="panel-subtitle">Gerado automaticamente a partir dos dados preenchidos.</p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="toolbar" style="margin-bottom:14px">
+              <button class="button warning" type="button" id="btnPrint">Imprimir</button>
+              <button class="button primary" type="button" id="btnPdf">Gerar PDF</button>
+              <button class="button success" type="button" id="btnCard">Gerar card para redes sociais</button>
+            </div>
+            <div id="reportPreview" class="report-card"></div>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <section id="printArea" class="print-only"></section>
+  </main>
+
+  <footer class="site-footer no-print">
+    <p> 2026 <strong>DoaFácil</strong>. </p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    const STORAGE_KEY = "sistema-doacoes-campanhas-v1";
+    const defaultCampaign = () => ({
+      id: makeId(),
+      titulo: "",
+      instituicao: "",
+      responsavel: "",
+      email: "",
+      whatsapp: "",
+      telefone: "",
+      facebook: "",
+      instagram: "",
+      redeX: "",
+      cidade: "",
+      objetivo: "",
+      dataInicio: "",
+      dataFim: "",
+      localEntrega: "",
+      items: [emptyItem()],
+      updatedAt: new Date().toISOString()
+    });
+
+    const exampleCampaign = () => ({
+      id: makeId(),
+      titulo: "Campanha Solidária de Alimentos e Higiene",
+      instituicao: "Organização comunitária local",
+      responsavel: "Equipe de coordenação de doações",
+      email: "contato@instituicao.org",
+      whatsapp: "(00) 00000-0000",
+      telefone: "(00) 0000-0000",
+      facebook: "facebook.com/sua-campanha",
+      instagram: "@sua_campanha",
+      redeX: "@sua_campanha",
+      cidade: "Sua cidade - UF",
+      objetivo: "Coordenar e divulgar uma campanha de arrecadação de alimentos, materiais de higiene e itens essenciais, facilitando a comunicação com doadores e a organização das metas de arrecadação.",
+      dataInicio: todayIso(),
+      dataFim: addDaysIso(30),
+      localEntrega: "Ponto de coleta principal: secretaria da instituição. Entregas de segunda a sexta, das 9h às 17h. Para dúvidas, utilize um dos canais de contato informados.",
+      items: [
+        { nome: "Arroz", categoria: "Alimento", meta: 80, atual: 35, unidade: "kg", prioridade: "Alta" },
+        { nome: "Feijão", categoria: "Alimento", meta: 60, atual: 20, unidade: "kg", prioridade: "Alta" },
+        { nome: "Óleo de cozinha", categoria: "Alimento", meta: 50, atual: 15, unidade: "unidades", prioridade: "Média" },
+        { nome: "Sabonete", categoria: "Higiene", meta: 100, atual: 40, unidade: "unidades", prioridade: "Alta" },
+        { nome: "Creme dental", categoria: "Higiene", meta: 80, atual: 25, unidade: "unidades", prioridade: "Média" }
+      ],
+      updatedAt: new Date().toISOString()
+    });
+
+    let campaigns = loadCampaigns();
+    let current = campaigns[0] || defaultCampaign();
+    let lastPlainText = "";
+
+    const formFields = ["titulo", "instituicao", "responsavel", "email", "whatsapp", "telefone", "facebook", "instagram", "redeX", "cidade", "objetivo", "dataInicio", "dataFim", "localEntrega"];
+    const phoneFields = ["whatsapp", "telefone"];
+    const socialFields = ["instagram", "redeX"];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      bindEvents();
+      loadIntoForm(current);
+      renderCampaignList();
+      renderItems();
+      updateAll();
+    });
+
+    function bindEvents() {
+      formFields.forEach(id => {
+        document.getElementById(id).addEventListener("input", event => {
+          if (phoneFields.includes(id)) event.target.value = formatPhone(event.target.value);
+          if (socialFields.includes(id)) event.target.value = formatSocialHandle(event.target.value);
+          syncFormToState();
+          updateAll(false);
+        });
+      });
+
+      document.getElementById("btnAddItem").addEventListener("click", () => {
+        current.items.push(emptyItem());
+        renderItems();
+        updateAll(false);
+      });
+
+      document.getElementById("btnSortPriority").addEventListener("click", () => {
+        const order = { Alta: 1, Média: 2, Baixa: 3 };
+        current.items.sort((a, b) => (order[a.prioridade] || 9) - (order[b.prioridade] || 9));
+        renderItems();
+        updateAll(false);
+        showToast("Itens ordenados por prioridade.");
+      });
+
+      document.getElementById("btnSave").addEventListener("click", saveCurrent);
+      document.getElementById("btnDeleteCampaign").addEventListener("click", deleteCurrentCampaign);
+      document.getElementById("btnClear").addEventListener("click", () => {
+        if (!confirm("Deseja limpar o formulário atual?")) return;
+        current = defaultCampaign();
+        loadIntoForm(current);
+        renderItems();
+        updateAll(false);
+      });
+      document.getElementById("btnNew").addEventListener("click", () => {
+        current = defaultCampaign();
+        loadIntoForm(current);
+        renderItems();
+        updateAll(false);
+        showToast("Nova campanha criada em rascunho.");
+      });
+      document.getElementById("btnExample").addEventListener("click", () => {
+        current = exampleCampaign();
+        loadIntoForm(current);
+        renderItems();
+        updateAll(false);
+        showToast("Exemplo carregado.");
+      });
+      document.getElementById("btnPrint").addEventListener("click", printReport);
+      document.getElementById("btnPrintTop").addEventListener("click", printReport);
+      document.getElementById("btnPdf").addEventListener("click", generatePdf);
+      document.getElementById("btnCard").addEventListener("click", generateSocialCard);
+      document.getElementById("btnExport").addEventListener("click", exportExcel);
+      document.getElementById("importFile").addEventListener("change", importExcel);
+    }
+
+    function makeId() {
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      return "camp-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+    }
+
+    function emptyItem() {
+      return { nome: "", categoria: "", meta: 0, atual: 0, unidade: "unidades", prioridade: "Média" };
+    }
+
+    function loadCampaigns() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || localStorage.getItem("sistema-doacoes-campanhas-v1") || "[]");
+        return Array.isArray(parsed) ? parsed.map(normalizeCampaign).filter(hasCampaignContent) : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function persistCampaigns() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(campaigns.map(normalizeCampaign)));
+    }
+
+    function normalizeCampaign(campaign) {
+      const c = campaign && typeof campaign === "object" ? campaign : {};
+      return {
+        id: valueToString(c.id) || makeId(),
+        titulo: valueToString(c.titulo),
+        instituicao: valueToString(c.instituicao),
+        responsavel: valueToString(c.responsavel),
+        email: valueToString(c.email),
+        whatsapp: formatPhone(c.whatsapp),
+        telefone: formatPhone(c.telefone || c.phone || c.fone),
+        facebook: valueToString(c.facebook),
+        instagram: formatSocialHandle(c.instagram),
+        redeX: formatSocialHandle(c.redeX || c.x || c.twitter || c.twitterX),
+        cidade: valueToString(c.cidade),
+        objetivo: valueToString(c.objetivo),
+        dataInicio: normalizeDateCell(c.dataInicio),
+        dataFim: normalizeDateCell(c.dataFim),
+        localEntrega: valueToString(c.localEntrega),
+        items: Array.isArray(c.items) && c.items.length ? c.items.map(normalizeItem) : [emptyItem()],
+        updatedAt: valueToString(c.updatedAt) || new Date().toISOString()
+      };
+    }
+
+    function normalizeItem(item) {
+      const i = item && typeof item === "object" ? item : {};
+      return {
+        nome: valueToString(i.nome),
+        categoria: valueToString(i.categoria),
+        meta: Math.max(0, Number(i.meta) || 0),
+        atual: Math.max(0, Number(i.atual) || 0),
+        unidade: valueToString(i.unidade) || "unidades",
+        prioridade: normalizePriority(i.prioridade)
+      };
+    }
+
+    function loadIntoForm(data) {
+      data = normalizeCampaign(data);
+      formFields.forEach(id => {
+        document.getElementById(id).value = data[id] || "";
+      });
+    }
+
+    function syncFormToState() {
+      formFields.forEach(id => {
+        const field = document.getElementById(id);
+        if (phoneFields.includes(id)) current[id] = formatPhone(field.value);
+        else if (socialFields.includes(id)) current[id] = formatSocialHandle(field.value);
+        else current[id] = field.value.trim();
+      });
+      delete current.ods;
+      current.updatedAt = new Date().toISOString();
+    }
+
+    function renderItems() {
+      const body = document.getElementById("itemsBody");
+      if (!current.items || !current.items.length) current.items = [emptyItem()];
+      body.innerHTML = current.items.map((item, index) => `
+        <tr>
+          <td><input aria-label="Nome do item ${index + 1}" value="${escapeAttr(item.nome)}" data-index="${index}" data-field="nome" placeholder="Ex.: Arroz" /></td>
+          <td><input aria-label="Categoria do item ${index + 1}" value="${escapeAttr(item.categoria)}" data-index="${index}" data-field="categoria" placeholder="Alimento" /></td>
+          <td><input aria-label="Meta do item ${index + 1}" value="${Number(item.meta) || 0}" data-index="${index}" data-field="meta" type="number" min="0" /></td>
+          <td><input aria-label="Arrecadado do item ${index + 1}" value="${Number(item.atual) || 0}" data-index="${index}" data-field="atual" type="number" min="0" /></td>
+          <td><input aria-label="Unidade do item ${index + 1}" value="${escapeAttr(item.unidade || "unidades")}" data-index="${index}" data-field="unidade" placeholder="kg, unid." /></td>
+          <td>
+            <select aria-label="Prioridade do item ${index + 1}" data-index="${index}" data-field="prioridade">
+              ${["Alta", "Média", "Baixa"].map(p => `<option ${item.prioridade === p ? "selected" : ""}>${p}</option>`).join("")}
+            </select>
+          </td>
+          <td><button class="mini-btn" type="button" title="Remover item" data-remove="${index}">×</button></td>
+        </tr>
+      `).join("");
+
+      body.querySelectorAll("input, select").forEach(el => {
+        el.addEventListener("input", onItemChange);
+        el.addEventListener("change", onItemChange);
+      });
+
+      body.querySelectorAll("[data-remove]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const index = Number(btn.dataset.remove);
+          current.items.splice(index, 1);
+          if (!current.items.length) current.items.push(emptyItem());
+          renderItems();
+          updateAll(false);
+        });
+      });
+    }
+
+    function onItemChange(event) {
+      const index = Number(event.target.dataset.index);
+      const field = event.target.dataset.field;
+      let value = event.target.value;
+      if (["meta", "atual"].includes(field)) value = Math.max(0, Number(value) || 0);
+      current.items[index][field] = value;
+      current.updatedAt = new Date().toISOString();
+      updateAll(false);
+    }
+
+    function getStats() {
+      const validItems = (current.items || []).filter(item => item.nome || Number(item.meta) || Number(item.atual));
+      const totalMeta = validItems.reduce((sum, item) => sum + (Number(item.meta) || 0), 0);
+      const totalAtual = validItems.reduce((sum, item) => sum + (Number(item.atual) || 0), 0);
+      const pending = Math.max(0, totalMeta - totalAtual);
+      const progress = totalMeta > 0 ? Math.min(100, Math.round((totalAtual / totalMeta) * 100)) : 0;
+      let status = "Rascunho";
+      if (isCampaignEndDatePast(current.dataFim)) status = "Concluído";
+      else if (progress >= 100) status = "Meta atingida";
+      else if (progress > 0) status = "Em andamento";
+      return { validItems, totalMeta, totalAtual, pending, progress, status };
+    }
+
+    function updateAll(save = false) {
+      syncFormToState();
+      updateMetrics();
+      renderReport();
+      if (save) saveCurrent();
+    }
+
+    function updateMetrics() {
+      const stats = getStats();
+      document.getElementById("metricProgress").textContent = stats.progress + "%";
+      document.getElementById("metricProgressBar").style.width = stats.progress + "%";
+      document.getElementById("metricItems").textContent = stats.validItems.length;
+      document.getElementById("metricStatus").textContent = stats.status;
+    }
+
+    function renderReport() {
+      const { html, text } = buildReport();
+      document.getElementById("reportPreview").innerHTML = html;
+      document.getElementById("printArea").innerHTML = `<div class="report-card">${html}</div>`;
+      lastPlainText = text;
+    }
+
+    function buildReport() {
+      const stats = getStats();
+      const title = current.titulo || "Campanha de Doações";
+      const instituicao = current.instituicao || "Instituição não informada";
+      const responsavel = current.responsavel || "Responsável não informado";
+      const cidade = current.cidade || "Cidade/UF não informada";
+      const objetivo = current.objetivo || "Objetivo da campanha não informado.";
+      const periodo = `${formatDate(current.dataInicio) || "data inicial não informada"} até ${formatDate(current.dataFim) || "data final não informada"}`;
+      const entrega = current.localEntrega || "Local de entrega não informado.";
+      const contacts = contactEntries(current);
+
+      const rows = stats.validItems.length ? stats.validItems.map(item => {
+        const meta = Number(item.meta) || 0;
+        const atual = Number(item.atual) || 0;
+        const falta = Math.max(0, meta - atual);
+        const pct = meta > 0 ? Math.min(100, Math.round((atual / meta) * 100)) : 0;
+        return `
+          <tr>
+            <td>${escapeHtml(item.nome || "Item")}</td>
+            <td>${escapeHtml(item.categoria || "-")}</td>
+            <td>${meta} ${escapeHtml(item.unidade || "")}</td>
+            <td>${atual} ${escapeHtml(item.unidade || "")}</td>
+            <td>${falta} ${escapeHtml(item.unidade || "")}</td>
+            <td>${pct}%</td>
+            <td>${escapeHtml(item.prioridade || "Média")}</td>
+          </tr>
+        `;
+      }).join("") : `<tr><td colspan="7">Nenhum item cadastrado.</td></tr>`;
+
+      const html = `
+        <h2>${escapeHtml(title)}</h2>
+        <p><strong>Instituição:</strong> ${escapeHtml(instituicao)}</p>
+        <p><strong>Localidade:</strong> ${escapeHtml(cidade)}</p>
+        <p><strong>Responsável:</strong> ${escapeHtml(responsavel)}</p>
+        <h3>Canais de contato</h3>
+        ${contactHtml(current)}
+        <p><strong>Período da campanha:</strong> ${escapeHtml(periodo)}</p>
+        <p><strong>Objetivo:</strong> ${escapeHtml(objetivo)}</p>
+        <div class="report-kpis">
+          <div class="report-kpi"><strong>${stats.progress}%</strong><span>Progresso geral</span></div>
+          <div class="report-kpi"><strong>${stats.totalAtual}</strong><span>Total arrecadado</span></div>
+          <div class="report-kpi"><strong>${stats.pending}</strong><span>Total pendente</span></div>
+        </div>
+        <h3>Itens necessários</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Categoria</th>
+                <th>Meta</th>
+                <th>Arrecadado</th>
+                <th>Pendente</th>
+                <th>%</th>
+                <th>Prioridade</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <h3>Entrega das doações</h3>
+        <p>${escapeHtml(entrega)}</p>
+        <p><span class="badge">Status: ${escapeHtml(stats.status)}</span><span class="badge">Itens: ${stats.validItems.length}</span></p>
+      `;
+
+      const itemText = stats.validItems.length
+        ? stats.validItems.map(item => {
+          const meta = Number(item.meta) || 0;
+          const atual = Number(item.atual) || 0;
+          const falta = Math.max(0, meta - atual);
+          return `- ${item.nome || "Item"}: meta ${meta} ${item.unidade || ""}, arrecadado ${atual}, pendente ${falta}, prioridade ${item.prioridade || "Média"}`;
+        }).join("\n")
+        : "Nenhum item cadastrado.";
+
+      const contactText = contacts.length
+        ? contacts.map(([label, value]) => `${label}: ${value}`).join("\n")
+        : "Contato não informado.";
+
+      const text = [
+        title,
+        "",
+        `Instituição: ${instituicao}`,
+        `Localidade: ${cidade}`,
+        `Responsável: ${responsavel}`,
+        "Canais de contato:",
+        contactText,
+        `Período: ${periodo}`,
+        "",
+        `Objetivo: ${objetivo}`,
+        "",
+        `Progresso geral: ${stats.progress}%`,
+        `Total arrecadado: ${stats.totalAtual}`,
+        `Total pendente: ${stats.pending}`,
+        "",
+        "Itens necessários:",
+        itemText,
+        "",
+        `Local de entrega: ${entrega}`,
+        "",
+        "Participe! Sua contribuição ajuda a ampliar o alcance da campanha e apoiar pessoas da comunidade."
+      ].join("\n");
+
+      return { html, text };
+    }
+
+    function contactEntries(campaign) {
+      const c = campaign || {};
+      return [
+        ["E-mail", c.email],
+        ["WhatsApp", c.whatsapp],
+        ["Telefone", c.telefone],
+        ["Facebook", c.facebook],
+        ["Instagram", c.instagram],
+        ["X", c.redeX]
+      ].filter(([, value]) => value && String(value).trim());
+    }
+
+    function contactHtml(campaign) {
+      const rows = contactEntries(campaign);
+      if (!rows.length) return `<p>Contato não informado.</p>`;
+      return `<div class="contact-list">${rows.map(([label, value]) => `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`).join("")}</div>`;
+    }
+
+    function removeOdsFromCampaign(campaign) {
+      if (!campaign || typeof campaign !== "object") return campaign;
+      delete campaign.ods;
+      return campaign;
+    }
+
+    function removeOdsFromAllData() {
+      removeOdsFromCampaign(current);
+      campaigns = campaigns.map(campaign => removeOdsFromCampaign(campaign));
+    }
+
+    function saveCurrent() {
+      syncFormToState();
+      if (!current.titulo) {
+        alert("Informe pelo menos o título da campanha antes de salvar.");
+        return;
+      }
+      current = normalizeCampaign(current);
+      const index = campaigns.findIndex(c => c.id === current.id);
+      if (index >= 0) campaigns[index] = structuredCloneSafe(current);
+      else campaigns.unshift(structuredCloneSafe(current));
+      persistCampaigns();
+      renderCampaignList();
+      showToast("Campanha salva neste navegador.");
+    }
+
+    function deleteCurrentCampaign() {
+      const savedIndex = campaigns.findIndex(c => c.id === current.id);
+      const title = current.titulo || "campanha atual";
+
+      if (savedIndex === -1) {
+        const shouldClear = confirm("Esta campanha ainda não está salva. Deseja apenas limpar o rascunho atual?");
+        if (!shouldClear) return;
+
+        current = defaultCampaign();
+        loadIntoForm(current);
+        renderItems();
+        updateAll(false);
+        renderCampaignList();
+        showToast("Rascunho limpo.");
+        return;
+      }
+
+      const confirmed = confirm(`Deseja excluir a campanha "${title}"? Esta ação não poderá ser desfeita.`);
+      if (!confirmed) return;
+
+      campaigns.splice(savedIndex, 1);
+      persistCampaigns();
+
+      current = campaigns.length ? structuredCloneSafe(campaigns[0]) : defaultCampaign();
+      loadIntoForm(current);
+      renderItems();
+      updateAll(false);
+      renderCampaignList();
+
+      showToast("Campanha excluída.");
+    }
+
+    function renderCampaignList() {
+      const list = document.getElementById("campaignList");
+      if (!campaigns.length) {
+        list.innerHTML = `<div class="empty-state">Nenhuma campanha salva ainda.</div>`;
+        return;
+      }
+      list.innerHTML = campaigns.map(c => {
+        const active = c.id === current.id ? "active" : "";
+        const stats = calcStatsFor(c);
+        const concluded = stats.status === "Concluído";
+        const statusText = concluded ? `${stats.progress}% arrecadado • Concluído` : `${stats.progress}% arrecadado`;
+        return `
+          <article class="campaign-card ${active} ${concluded ? "concluded" : ""}" data-id="${c.id}">
+            <strong>${escapeHtml(c.titulo || "Campanha sem título")}</strong>
+            <small>${escapeHtml(c.cidade || "Cidade não informada")} • ${escapeHtml(statusText)}</small>
+            <div class="progress" aria-hidden="true"><span style="width:${stats.progress}%"></span></div>
+            ${concluded ? `<span class="campaign-check" aria-label="Campanha concluída">✓</span>` : ""}
+          </article>
+        `;
+      }).join("");
+
+      list.querySelectorAll(".campaign-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const found = campaigns.find(c => c.id === card.dataset.id);
+          if (!found) return;
+          current = structuredCloneSafe(found);
+          loadIntoForm(current);
+          renderItems();
+          updateAll(false);
+          renderCampaignList();
+          showToast("Campanha carregada.");
+        });
+      });
+    }
+
+    function calcStatsFor(campaign) {
+      const items = (campaign.items || []).filter(item => item.nome || Number(item.meta) || Number(item.atual));
+      const meta = items.reduce((sum, item) => sum + (Number(item.meta) || 0), 0);
+      const atual = items.reduce((sum, item) => sum + (Number(item.atual) || 0), 0);
+      const progress = meta > 0 ? Math.min(100, Math.round((atual / meta) * 100)) : 0;
+      let status = "Rascunho";
+      if (isCampaignEndDatePast(campaign.dataFim)) status = "Concluído";
+      else if (progress >= 100) status = "Meta atingida";
+      else if (progress > 0) status = "Em andamento";
+      return { progress, status };
+    }
+
+    function printReport() {
+      syncFormToState();
+      renderReport();
+      window.print();
+    }
+
+
+    function generatePdf() {
+      syncFormToState();
+      renderReport();
+      if (!(window.jspdf && window.jspdf.jsPDF)) {
+        alert("A biblioteca de PDF ainda não foi carregada. Verifique sua conexão com a internet e tente novamente.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+      const stats = getStats();
+      const title = current.titulo || "Campanha de Doações";
+      const instituicao = current.instituicao || "Instituição não informada";
+      const responsavel = current.responsavel || "Responsável não informado";
+      const cidade = current.cidade || "Cidade/UF não informada";
+      const objetivo = current.objetivo || "Objetivo da campanha não informado.";
+      const periodo = `${formatDate(current.dataInicio) || "data inicial não informada"} até ${formatDate(current.dataFim) || "data final não informada"}`;
+      const entrega = current.localEntrega || "Local de entrega não informado.";
+      const contacts = contactEntries(current).map(([label, value]) => `${label}: ${value}`);
+      const items = stats.validItems.length ? stats.validItems : [];
+
+      let y = 16;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.text(title, 14, y);
+      y += 8;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      const infoLines = [
+        `Instituição: ${instituicao}`,
+        `Localidade: ${cidade}`,
+        `Responsável: ${responsavel}`,
+        `Período: ${periodo}`,
+        `Status: ${stats.status}`,
+        `Progresso geral: ${stats.progress}% | Total arrecadado: ${stats.totalAtual} | Total pendente: ${stats.pending}`
+      ];
+      infoLines.forEach(line => {
+        const wrapped = doc.splitTextToSize(line, 182);
+        doc.text(wrapped, 14, y);
+        y += wrapped.length * 5;
+      });
+
+      y += 2;
+      doc.setFont("helvetica", "bold");
+      doc.text("Canais de contato", 14, y);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+      const contactLines = contacts.length ? contacts : ["Contato não informado."];
+      contactLines.forEach(line => {
+        const wrapped = doc.splitTextToSize(line, 182);
+        doc.text(wrapped, 14, y);
+        y += wrapped.length * 5;
+      });
+
+      y += 2;
+      doc.setFont("helvetica", "bold");
+      doc.text("Objetivo da campanha", 14, y);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+      const objLines = doc.splitTextToSize(objetivo, 182);
+      doc.text(objLines, 14, y);
+      y += objLines.length * 5 + 2;
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Local de entrega / ponto de coleta", 14, y);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+      const entregaLines = doc.splitTextToSize(entrega, 182);
+      doc.text(entregaLines, 14, y);
+      y += entregaLines.length * 5 + 4;
+
+      const body = items.length
+        ? items.map(item => {
+            const meta = Number(item.meta) || 0;
+            const atual = Number(item.atual) || 0;
+            const falta = Math.max(0, meta - atual);
+            const pct = meta > 0 ? Math.min(100, Math.round((atual / meta) * 100)) : 0;
+            return [
+              item.nome || "Item",
+              item.categoria || "-",
+              `${meta} ${item.unidade || ""}`.trim(),
+              `${atual} ${item.unidade || ""}`.trim(),
+              `${falta} ${item.unidade || ""}`.trim(),
+              `${pct}%`,
+              item.prioridade || "Média"
+            ];
+          })
+        : [["Nenhum item cadastrado.", "-", "-", "-", "-", "-", "-"]];
+
+      doc.autoTable({
+        startY: y,
+        head: [["Item", "Categoria", "Meta", "Arrecadado", "Pendente", "%", "Prioridade"]],
+        body,
+        styles: { font: "helvetica", fontSize: 9, cellPadding: 2 },
+        headStyles: { fillColor: [52, 82, 213] },
+        alternateRowStyles: { fillColor: [245, 247, 251] },
+        margin: { left: 14, right: 14 }
+      });
+
+      const pages = doc.getNumberOfPages();
+      for (let i = 1; i <= pages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(9);
+        doc.setTextColor(120);
+        doc.text(`Gerado em ${new Date().toLocaleString('pt-BR')}`, 14, 290);
+        doc.text(`Página ${i} de ${pages}`, 180, 290, { align: 'right' });
+      }
+
+      doc.save(`${slugify(title)}-relatorio.pdf`);
+      showToast("PDF gerado com sucesso.");
+    }
+
+    function generateSocialCard() {
+      syncFormToState();
+      const stats = getStats();
+      const title = current.titulo || "Campanha de Doações";
+      const instituicao = current.instituicao || "Instituição não informada";
+      const cidade = current.cidade || "Cidade/UF não informada";
+      const objetivo = current.objetivo || "Objetivo da campanha não informado.";
+      const entrega = current.localEntrega || "Local de entrega não informado.";
+      const contacts = contactEntries(current);
+      const periodo = `${formatDate(current.dataInicio) || "data inicial não informada"} até ${formatDate(current.dataFim) || "data final não informada"}`;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 1080;
+      canvas.height = 1080;
+      const ctx = canvas.getContext('2d');
+
+      const grad = ctx.createLinearGradient(0, 0, 1080, 1080);
+      grad.addColorStop(0, '#243a8f');
+      grad.addColorStop(1, '#4f6ef7');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.globalAlpha = 0.12;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.arc(905, 125, 175, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(105, 1010, 210, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+
+      roundRect(ctx, 54, 54, 972, 972, 34, '#ffffff');
+
+      roundRect(ctx, 88, 86, 66, 66, 18, '#3653d5');
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 30px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('❤', 121, 130);
+      ctx.textAlign = 'left';
+
+      ctx.fillStyle = '#3653d5';
+      ctx.font = 'bold 23px Arial';
+      ctx.fillText('Campanha Solidária', 174, 118);
+
+      let y = wrapText(ctx, title, 88, 200, 904, 50, 'bold 46px Arial', '#111827', 2);
+      y = Math.max(y + 18, 285);
+
+      y = wrapText(ctx, instituicao, 88, y, 640, 28, '23px Arial', '#4b5563', 2);
+      y = wrapText(ctx, cidade, 88, y, 640, 28, '23px Arial', '#4b5563', 1);
+      y += 16;
+
+      // Bloco mais compacto de progresso / período
+      roundRect(ctx, 88, y, 904, 96, 22, '#f8fafc');
+
+      ctx.fillStyle = '#6b7280';
+      ctx.font = 'bold 16px Arial';
+      ctx.fillText('PROGRESSO', 116, y + 27);
+      ctx.fillStyle = '#111827';
+      ctx.font = 'bold 42px Arial';
+      ctx.fillText(`${stats.progress}%`, 116, y + 70);
+
+      roundRect(ctx, 286, y + 41, 420, 12, 6, '#e5e7eb');
+      roundRect(ctx, 286, y + 41, Math.max(24, 420 * (stats.progress / 100)), 12, 6, '#4CAF50');
+
+      ctx.fillStyle = '#6b7280';
+      ctx.font = 'bold 15px Arial';
+      ctx.fillText('PERÍODO', 760, y + 27);
+      wrapText(ctx, periodo, 760, y + 56, 170, 20, '17px Arial', '#1f2937', 2);
+
+      y += 128;
+      ctx.fillStyle = '#111827';
+      ctx.font = 'bold 28px Arial';
+      ctx.fillText('Objetivo da campanha', 88, y);
+      y += 16;
+      roundRect(ctx, 88, y, 904, 166, 24, '#f8fafc');
+      wrapText(ctx, objetivo, 120, y + 40, 840, 28, '22px Arial', '#1f2937', 4);
+
+      y += 198;
+
+      const contactLine = contacts.length
+        ? contacts.slice(0, 5).map(([label, value]) => `${label}: ${value}`).join('  •  ')
+        : 'Contato não informado';
+      const shortEntrega = entrega.length > 165 ? entrega.slice(0, 162) + '...' : entrega;
+
+      roundRect(ctx, 88, y, 904, 120, 24, '#eef2ff');
+      ctx.fillStyle = '#3653d5';
+      ctx.font = 'bold 20px Arial';
+      ctx.fillText('Contatos', 120, y + 34);
+      wrapText(ctx, contactLine, 120, y + 64, 840, 24, '20px Arial', '#1f2937', 2);
+
+      y += 138;
+      roundRect(ctx, 88, y, 904, 120, 24, '#f8fafc');
+      ctx.fillStyle = '#3653d5';
+      ctx.font = 'bold 20px Arial';
+      ctx.fillText('Ponto de coleta', 120, y + 34);
+      wrapText(ctx, shortEntrega, 120, y + 64, 840, 24, '20px Arial', '#1f2937', 2);
+
+      ctx.fillStyle = '#3653d5';
+      ctx.font = 'bold 20px Arial';
+      ctx.fillText('Doe e compartilhe esta campanha', 88, 1000);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '18px Arial';
+      ctx.fillText('Sistema de Coordenação de Doações', 992, 1000);
+      ctx.textAlign = 'left';
+
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = `${slugify(title)}-card-redes-sociais.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      showToast('Card para redes sociais gerado com sucesso.');
+    }
+
+    function roundRect(ctx, x, y, width, height, radius, fill) {
+      const r = Math.min(radius, width / 2, height / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + width, y, x + width, y + height, r);
+      ctx.arcTo(x + width, y + height, x, y + height, r);
+      ctx.arcTo(x, y + height, x, y, r);
+      ctx.arcTo(x, y, x + width, y, r);
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
+    }
+
+    function drawChip(ctx, x, y, text, bg, fg) {
+      ctx.font = 'bold 22px Arial';
+      const width = ctx.measureText(text).width + 28;
+      roundRect(ctx, x, y, width, 42, 21, bg);
+      ctx.fillStyle = fg;
+      ctx.fillText(text, x + 14, y + 28);
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight, font, color, maxLines = 10) {
+      ctx.font = font;
+      ctx.fillStyle = color;
+      const words = String(text || '').split(/\s+/);
+      let line = '';
+      let lines = [];
+      words.forEach(word => {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = test;
+        }
+      });
+      if (line) lines.push(line);
+      if (lines.length > maxLines) {
+        lines = lines.slice(0, maxLines);
+        let last = lines[maxLines - 1];
+        while (ctx.measureText(last + '...').width > maxWidth && last.length > 0) {
+          last = last.slice(0, -1);
+        }
+        lines[maxLines - 1] = last + '...';
+      }
+      lines.forEach((ln, idx) => ctx.fillText(ln, x, y + idx * lineHeight));
+      return y + lines.length * lineHeight;
+    }
+
+    async function copyReportText() {
+      syncFormToState();
+      renderReport();
+      try {
+        await navigator.clipboard.writeText(lastPlainText);
+        showToast("Texto copiado para a área de transferência.");
+      } catch (error) {
+        const area = document.createElement("textarea");
+        area.value = lastPlainText;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+        showToast("Texto copiado.");
+      }
+    }
+
+    function downloadTxt() {
+      syncFormToState();
+      renderReport();
+      const blob = new Blob([lastPlainText], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = slugify(current.titulo || "relatorio-doacoes") + ".txt";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportExcel() {
+      if (!ensureExcelLibrary()) return;
+      syncFormToState();
+      current = normalizeCampaign(current);
+
+      const wb = XLSX.utils.book_new();
+      addSheet(wb, "Campanha", campaignToRows(current));
+      addSheet(wb, "Itens", itemsToRows(current.items || [], current.id));
+      addSheet(wb, "Resumo", summaryToRows());
+
+      const fileName = slugify(current.titulo || "campanha-doacoes") + ".xlsx";
+      XLSX.writeFile(wb, fileName);
+      showToast("Campanha atual exportada em Excel.");
+    }
+
+    function importExcel(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      if (!ensureExcelLibrary()) {
+        event.target.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const workbook = XLSX.read(reader.result, { type: "array", cellDates: true });
+          const imported = readCurrentCampaign(workbook);
+          if (!imported || !hasCampaignContent(imported)) throw new Error("Planilha sem campanha válida.");
+
+          current = normalizeCampaign(imported);
+          const index = campaigns.findIndex(c => c.id === current.id);
+          if (index >= 0) campaigns[index] = structuredCloneSafe(current);
+          else campaigns.unshift(structuredCloneSafe(current));
+
+          persistCampaigns();
+          loadIntoForm(current);
+          renderItems();
+          renderCampaignList();
+          updateAll(false);
+          showToast("Campanha importada do Excel.");
+        } catch (error) {
+          console.error(error);
+          alert("Não foi possível importar o arquivo. Use uma planilha Excel exportada por este sistema.");
+        } finally {
+          event.target.value = "";
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function ensureExcelLibrary() {
+      if (typeof XLSX !== "undefined") return true;
+      alert("A biblioteca de Excel ainda não foi carregada. Verifique sua conexão com a internet e tente novamente.");
+      return false;
+    }
+
+    function addSheet(workbook, name, rows) {
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      ws["!cols"] = rows[0].map((_, colIndex) => {
+        const max = rows.reduce((width, row) => Math.max(width, String(row[colIndex] ?? "").length), 10);
+        return { wch: Math.min(Math.max(max + 2, 12), 45) };
+      });
+      XLSX.utils.book_append_sheet(workbook, ws, name);
+    }
+
+    function campaignToRows(campaign, label = "Campanha") {
+      const c = normalizeCampaign(campaign || defaultCampaign());
+      return [
+        ["Campo", "Valor"],
+        ["tipo", label],
+        ["id", c.id || makeId()],
+        ["titulo", c.titulo || ""],
+        ["instituicao", c.instituicao || ""],
+        ["responsavel", c.responsavel || ""],
+        ["email", c.email || ""],
+        ["whatsapp", c.whatsapp || ""],
+        ["telefone", c.telefone || ""],
+        ["facebook", c.facebook || ""],
+        ["instagram", c.instagram || ""],
+        ["redeX", c.redeX || ""],
+        ["cidade", c.cidade || ""],
+        ["objetivo", c.objetivo || ""],
+        ["dataInicio", c.dataInicio || ""],
+        ["dataFim", c.dataFim || ""],
+        ["localEntrega", c.localEntrega || ""],
+        ["updatedAt", c.updatedAt || new Date().toISOString()],
+        ["exportedAt", new Date().toISOString()]
+      ];
+    }
+
+    function itemsToRows(items, campaignId = "") {
+      return [
+        ["campanha_id", "nome", "categoria", "meta", "atual", "unidade", "prioridade"],
+        ...(items || []).map(item => {
+          const i = normalizeItem(item);
+          return [
+            campaignId || "",
+            i.nome || "",
+            i.categoria || "",
+            Number(i.meta) || 0,
+            Number(i.atual) || 0,
+            i.unidade || "unidades",
+            i.prioridade || "Média"
+          ];
+        })
+      ];
+    }
+
+    function summaryToRows() {
+      const stats = getStats();
+      return [
+        ["Indicador", "Valor"],
+        ["Progresso geral", stats.progress + "%"],
+        ["Total arrecadado", stats.totalAtual],
+        ["Total pendente", stats.pending],
+        ["Quantidade de itens", stats.validItems.length],
+        ["Status", stats.status]
+      ];
+    }
+
+    function readCurrentCampaign(workbook) {
+      const sheet = workbook.Sheets["Campanha"] || workbook.Sheets["Campanha Atual"];
+      if (!sheet) return null;
+      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+      const map = {};
+      rows.slice(1).forEach(row => {
+        const key = normalizeKey(row[0]);
+        if (key) map[key] = row[1];
+      });
+      const campaign = mapToCampaign(map);
+      campaign.items = readItemsSheet(workbook.Sheets["Itens"] || workbook.Sheets["Itens Atuais"], campaign.id);
+      if (!campaign.items.length) campaign.items = [emptyItem()];
+      return hasCampaignContent(campaign) ? campaign : null;
+    }
+
+    function readSavedCampaigns(workbook) {
+      return [];
+    }
+
+    function readItemsSheet(sheet, expectedCampaignId = null) {
+      if (!sheet) return [];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+      return rows
+        .filter(row => !expectedCampaignId || !row.campanha_id || String(row.campanha_id) === String(expectedCampaignId))
+        .map(row => normalizeItem({
+          nome: row.nome,
+          categoria: row.categoria,
+          meta: row.meta,
+          atual: row.atual,
+          unidade: row.unidade,
+          prioridade: row.prioridade
+        }))
+        .filter(item => item.nome || item.categoria || item.meta || item.atual);
+    }
+
+    function groupItemsByCampaign(items) {
+      const groups = {};
+      items.forEach(item => {
+        const id = valueToString(item.campanha_id);
+        if (!id) return;
+        if (!groups[id]) groups[id] = [];
+        groups[id].push({
+          nome: item.nome,
+          categoria: item.categoria,
+          meta: item.meta,
+          atual: item.atual,
+          unidade: item.unidade,
+          prioridade: item.prioridade
+        });
+      });
+      return groups;
+    }
+
+    function mapToCampaign(source) {
+      const get = key => source[key] ?? source[normalizeKey(key)] ?? "";
+      return normalizeCampaign({
+        id: valueToString(get("id")) || makeId(),
+        titulo: valueToString(get("titulo")),
+        instituicao: valueToString(get("instituicao")),
+        responsavel: valueToString(get("responsavel")),
+        email: valueToString(get("email")),
+        whatsapp: valueToString(get("whatsapp")),
+        telefone: valueToString(get("telefone")) || valueToString(get("phone")) || valueToString(get("fone")),
+        facebook: valueToString(get("facebook")),
+        instagram: valueToString(get("instagram")),
+        redeX: valueToString(get("redeX")) || valueToString(get("x")) || valueToString(get("twitter")) || valueToString(get("twitterX")),
+        cidade: valueToString(get("cidade")),
+        objetivo: valueToString(get("objetivo")),
+        dataInicio: normalizeDateCell(get("dataInicio")),
+        dataFim: normalizeDateCell(get("dataFim")),
+        localEntrega: valueToString(get("localEntrega")),
+        items: [emptyItem()],
+        updatedAt: valueToString(get("updatedAt")) || new Date().toISOString()
+      });
+    }
+
+    function upsertCurrentCampaign() {
+      if (!current || !hasCampaignContent(current)) return;
+      const index = campaigns.findIndex(c => c.id === current.id);
+      if (index >= 0) campaigns[index] = structuredCloneSafe(current);
+      else campaigns.unshift(structuredCloneSafe(current));
+    }
+
+    function hasCampaignContent(campaign) {
+      const c = normalizeCampaign(campaign);
+      return Boolean(c.titulo || c.instituicao || c.responsavel || c.email || c.whatsapp || c.telefone || c.facebook || c.instagram || c.redeX || c.cidade || c.objetivo || c.localEntrega || (c.items || []).some(item => item.nome || item.meta || item.atual));
+    }
+
+    function formatPhone(value) {
+      const digits = valueToString(value).replace(/\D/g, "").slice(0, 11);
+      if (!digits) return "";
+      if (digits.length <= 2) return `(${digits}`;
+      if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+      if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    }
+
+    function formatSocialHandle(value) {
+      const text = valueToString(value).trim();
+      if (!text) return "";
+      const clean = text.replace(/^@+/, "").trim();
+      return clean ? "@" + clean : "";
+    }
+
+    function normalizeKey(value) {
+      return valueToString(value).replace(/\s+/g, "");
+    }
+
+    function valueToString(value) {
+      if (value === null || value === undefined) return "";
+      if (value instanceof Date && !isNaN(value)) return value.toISOString().slice(0, 10);
+      return String(value).trim();
+    }
+
+    function normalizeDateCell(value) {
+      if (value === null || value === undefined || value === "") return "";
+      if (value instanceof Date && !isNaN(value)) return value.toISOString().slice(0, 10);
+      if (typeof value === "number" && XLSX?.SSF?.parse_date_code) {
+        const parsed = XLSX.SSF.parse_date_code(value);
+        if (parsed) return `${parsed.y}-${String(parsed.m).padStart(2, "0")}-${String(parsed.d).padStart(2, "0")}`;
+      }
+      const text = valueToString(value);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+      const match = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (match) return `${match[3]}-${match[2].padStart(2, "0")}-${match[1].padStart(2, "0")}`;
+      return text;
+    }
+
+    function normalizePriority(value) {
+      const text = valueToString(value).toLowerCase();
+      if (text === "alta") return "Alta";
+      if (text === "baixa") return "Baixa";
+      return "Média";
+    }
+
+    function isCampaignEndDatePast(value) {
+      if (!value) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const endDate = new Date(value + "T00:00:00");
+      if (Number.isNaN(endDate.getTime())) return false;
+
+      return endDate < today;
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      const [year, month, day] = value.split("-");
+      if (!year || !month || !day) return value;
+      return `${day}/${month}/${year}`;
+    }
+
+    function todayIso() {
+      const d = new Date();
+      return d.toISOString().slice(0, 10);
+    }
+
+    function addDaysIso(days) {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function slugify(text) {
+      return text
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "arquivo";
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, "&#096;");
+    }
+
+    function structuredCloneSafe(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+  </script>
+</body>
+</html>
